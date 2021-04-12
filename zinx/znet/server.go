@@ -1,8 +1,9 @@
 package znet
 
 import (
+	"errors"
 	"fmt"
-	"github.com/xuese-go/zinxstudy/zinx/V0.1/ziface"
+	"github.com/xuese-go/zinxstudy/zinx/ziface"
 	"net"
 )
 
@@ -35,6 +36,7 @@ func (s *Server) Start() {
 		}
 
 		fmt.Println("Server Start success, ip:", s.IP, " ipVersion:", s.IPVersion, " port:", s.Port)
+		var cid uint32 = 0
 		//	3.阻塞的等待客户连接，处理客户端连接业务
 		for true {
 			conn, err := listener.AcceptTCP()
@@ -43,22 +45,18 @@ func (s *Server) Start() {
 				continue
 			}
 			//	客户端已经与服务器建立连接，做最基本的回写最大为512字节的回写
-			go func() {
-				for {
-					buf := make([]byte, 512)
-					//	读取客户端消息至buf中,只读取512字节
-					cnt, err := conn.Read(buf)
-					if err != nil {
-						fmt.Println("conn read err:", err)
-						continue
-					}
-					//	回写读取到的消息
-					if _, err := conn.Write(buf[:cnt]); err != nil {
-						fmt.Println("conn write err:", err)
-						continue
-					}
+			//	调用链接 绑定业务处理 回显数据
+			dealConn := NewConnection(conn, cid, func(conn *net.TCPConn, data []byte, cnt int) error {
+				//回显业务
+				if _, err := conn.Write(data[:cnt]); err != nil {
+					return errors.New("write to client err")
 				}
-			}()
+				return nil
+			})
+			cid++
+
+			//	启动链接
+			go dealConn.Start()
 		}
 	}()
 }
@@ -77,10 +75,10 @@ func (s *Server) Stop() {
 }
 
 //初始化server
-func NewServer(name string, ip string, port int) ziface.IServer {
+func NewServer(name string, port int) ziface.IServer {
 	s := &Server{
 		Name:      name,
-		IP:        ip,
+		IP:        "localhost",
 		IPVersion: "tcp4",
 		Port:      port,
 	}

@@ -1,6 +1,6 @@
 package main
 
-import "github.com/xuese-go/zinxstudy/zinx/V0.2/znet"
+import "github.com/xuese-go/zinxstudy/zinx/znet"
 
 /**
 zinx 服务demo

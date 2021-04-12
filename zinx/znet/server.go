@@ -1,7 +1,6 @@
 package znet
 
 import (
-	"errors"
 	"fmt"
 	"github.com/xuese-go/zinxstudy/zinx/ziface"
 	"net"
@@ -17,6 +16,8 @@ type Server struct {
 	IPVersion string
 	//	服务器监听的端口
 	Port int
+	//	路由
+	Router ziface.IRouter
 }
 
 func (s *Server) Start() {
@@ -44,15 +45,10 @@ func (s *Server) Start() {
 				fmt.Println("accept err:", err)
 				continue
 			}
+
 			//	客户端已经与服务器建立连接，做最基本的回写最大为512字节的回写
-			//	调用链接 绑定业务处理 回显数据
-			dealConn := NewConnection(conn, cid, func(conn *net.TCPConn, data []byte, cnt int) error {
-				//回显业务
-				if _, err := conn.Write(data[:cnt]); err != nil {
-					return errors.New("write to client err")
-				}
-				return nil
-			})
+			//	调用链接 绑定路由
+			dealConn := NewConnection(conn, cid, s.Router)
 			cid++
 
 			//	启动链接
@@ -74,6 +70,12 @@ func (s *Server) Stop() {
 
 }
 
+//	添加路由
+func (s *Server) AddRouter(router ziface.IRouter) {
+	s.Router = router
+	fmt.Println("router add success")
+}
+
 //初始化server
 func NewServer(name string, port int) ziface.IServer {
 	s := &Server{
@@ -81,6 +83,7 @@ func NewServer(name string, port int) ziface.IServer {
 		IP:        "localhost",
 		IPVersion: "tcp4",
 		Port:      port,
+		Router:    nil,
 	}
 	return s
 }

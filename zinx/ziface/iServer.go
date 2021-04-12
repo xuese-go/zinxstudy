@@ -9,4 +9,6 @@ type IServer interface {
 	Server()
 	//	停止方法
 	Stop()
+	//	添加路由
+	AddRouter(router IRouter)
 }

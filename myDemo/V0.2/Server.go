@@ -7,7 +7,7 @@ zinx 服务demo
 */
 func main() {
 
-	s := znet.NewServer("[zinx V0.2]", "localhost", 9000)
+	s := znet.NewServer("[zinx V0.2]", 9100)
 
 	s.Server()
 }

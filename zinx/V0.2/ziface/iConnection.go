@@ -20,4 +20,9 @@ type IConnection interface {
 }
 
 //处理连接业务的方法
+/**
+连接套接字
+发送的数据
+数据长度
+*/
 type HandleFunc func(*net.TCPConn, []byte, int) error

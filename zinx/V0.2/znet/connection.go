@@ -35,6 +35,7 @@ func NewConnection(conn *net.TCPConn, connId uint32, callBackApi ziface.HandleFu
 //读取数据
 func (c *Connection) StartRead() {
 	fmt.Println("Connection Read start...")
+	defer fmt.Println("conn read is close,connId=", c.ConnID)
 	defer c.Stop()
 	for true {
 		//读取数据
@@ -47,7 +48,7 @@ func (c *Connection) StartRead() {
 		//	调用当前连接所绑定的handleAPI
 		if err := c.handleAPI(c.Conn, buf, cnt); err != nil {
 			fmt.Println("handleAPI err", err)
-			break
+			continue
 		}
 
 	}

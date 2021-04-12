@@ -12,7 +12,7 @@ import (
 func main() {
 
 	//	连接服务器，得到conn
-	conn, err := net.Dial("tcp", "localhost:9000")
+	conn, err := net.Dial("tcp", "localhost:9100")
 	if err != nil {
 		fmt.Println("dial err:", err)
 	}

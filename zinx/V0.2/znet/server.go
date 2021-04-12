@@ -3,7 +3,7 @@ package znet
 import (
 	"errors"
 	"fmt"
-	"github.com/xuese-go/zinxstudy/zinx/V0.1/ziface"
+	"github.com/xuese-go/zinxstudy/zinx/V0.2/ziface"
 	"net"
 )
 
@@ -75,10 +75,10 @@ func (s *Server) Stop() {
 }
 
 //初始化server
-func NewServer(name string, ip string, port int) ziface.IServer {
+func NewServer(name string, port int) ziface.IServer {
 	s := &Server{
 		Name:      name,
-		IP:        ip,
+		IP:        "localhost",
 		IPVersion: "tcp4",
 		Port:      port,
 	}

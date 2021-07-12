@@ -3,7 +3,6 @@ package ziface
 /*
 路由
 */
-
 type IRouter interface {
 	//	处理业务之前的钩子
 	PreHandle(request IRequest)

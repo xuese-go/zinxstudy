@@ -8,7 +8,7 @@ type Request struct {
 	conn ziface.IConnection
 
 	//	链接中发送的数据
-	data []byte
+	data ziface.IMessage
 }
 
 //	得到当前的链接
@@ -18,5 +18,10 @@ func (r *Request) GetConnection() ziface.IConnection {
 
 //	得到当前链接中的数据
 func (r *Request) GetData() []byte {
-	return r.data
+	return r.data.GetData()
+}
+
+//得到消息ID
+func (r *Request) GetMsgId() uint32 {
+	return r.data.GetDataId()
 }

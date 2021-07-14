@@ -1,8 +1,10 @@
 package znet
 
 import (
+	"errors"
 	"fmt"
 	"github.com/xuese-go/zinxstudy/zinx/ziface"
+	"io"
 	"net"
 )
 
@@ -37,20 +39,36 @@ func (c *Connection) StartRead() {
 	fmt.Println("Connection Read start...")
 	defer fmt.Println("conn read is close,connId=", c.ConnID)
 	defer c.Stop()
-	for true {
+	for {
 		//读取数据
-		buf := make([]byte, 512)
-		_, err := c.Conn.Read(buf)
-		if err != nil {
-			fmt.Println("read err", err)
-			continue
+		//拆包对象
+		dp := NewDataPack()
+		//读取头部8字节
+		headData := make([]byte, dp.GetHeadLen())
+		if _, err := io.ReadFull(c.GetTCPConnection(), headData); err != nil {
+			fmt.Println("read data head err:", err)
+			break
 		}
-		fmt.Println("接收到的数据：", buf)
-
+		//拆包得到包含头部的msg
+		msg, err := dp.Unpack(headData)
+		if err != nil {
+			fmt.Println("head data unpack err:", err)
+			break
+		}
+		//根据头部len读取data
+		var data []byte
+		if msg.GetDataLen() > 0 {
+			data = make([]byte, msg.GetDataLen())
+			if _, err := io.ReadFull(c.GetTCPConnection(), data); err != nil {
+				fmt.Println("read data err:", err)
+				break
+			}
+		}
+		msg.SetData(data)
 		//得到当前Conn数据的Request请求数据
 		req := Request{
 			conn: c,
-			data: buf,
+			data: msg,
 		}
 		//	从当前路由中调用绑定的Conn对应的Router
 		go func(req ziface.IRequest) {
@@ -94,6 +112,24 @@ func (c *Connection) RemoteAddr() net.Addr {
 }
 
 //	发送数据
-func (c *Connection) Send([]byte) error {
+func (c *Connection) Send(msgId uint32, data []byte) error {
+	if c.isClosed {
+		return errors.New("this conn is close")
+	}
+	//封包
+	dp := NewDataPack()
+
+	msg, err := dp.Pack(NewMessage(msgId, data))
+	if err != nil {
+		fmt.Println("data pack err:", err)
+		return err
+	}
+
+	//发送数据
+	if _, err := c.Conn.Write(msg); err != nil {
+		fmt.Println("conn write err:", err)
+		return err
+	}
+
 	return nil
 }

@@ -19,7 +19,7 @@ func main() {
 
 	for true {
 		//	发送消息
-		_, err = conn.Write([]byte("Hello Word!3.0\r"))
+		_, err = conn.Write([]byte("Hello Word!0.5\r"))
 		if err != nil {
 			fmt.Println("conn write err:", err)
 		}

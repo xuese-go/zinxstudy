@@ -13,13 +13,13 @@ type PingRouter struct {
 	znet.BaseRouter
 }
 
-func (br *PingRouter) PreHandle(request ziface.IRequest) {
-	_, _ = request.GetConnection().GetTCPConnection().Write([]byte("Hello Word 3.0\r"))
+func (br *PingRouter) Handle(request ziface.IRequest) {
+	//_, _ = request.GetConnection().GetTCPConnection().Write([]byte("Hello Word 3.0\r"))
 }
 
 func main() {
 
-	s := znet.NewServer("[zinx V0.2]", 9100)
+	s := znet.NewServer("[zinx V0.5]", 9100)
 
 	s.AddRouter(&PingRouter{})
 

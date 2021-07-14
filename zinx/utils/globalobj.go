@@ -12,6 +12,7 @@ import (
 */
 
 type GlobalObj struct {
+	IsOpen bool //是否读取配置文件
 
 	//	Server
 	TcpServer ziface.IServer //当前zinx全局的Server对象
@@ -50,8 +51,11 @@ func init() {
 		Host:           "0.0.0.0",
 		MaxConn:        1000,
 		MaxPackageSize: 4096,
+		IsOpen:         false,
 	}
 
-	//加载配置文件中的配置
-	GlobalObject.loadJson()
+	if GlobalObject.IsOpen {
+		//加载配置文件中的配置
+		GlobalObject.loadJson()
+	}
 }
